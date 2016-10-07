@@ -7,15 +7,44 @@ class TodoList {
   	this.onTodoAdd = args['onTodoAdd'];
 
 
+    const obj = this;
     this.onchange = new Event('onchange', {bubbles: true});
     this.onadd = new Event('onadd', {bubbles: true});
     this.ondelete = new Event('ondelete', {bubbles: true});
 
-    this.node.addEventListener('onchange', this.render);
+
+    this.node.addEventListener('onchange', () => {
+      this.render();
+    });
     this.node.addEventListener('onadd', () => {
       this.render();
     });
-    this.node.addEventListener('ondelete', this.render);
+    this.node.addEventListener('ondelete', () => {
+      this.render();
+    });
+
+
+    this.node.addEventListener('keyup', function(e) {
+      const addNew = this.querySelector('input[type="text"]');
+      if (e.keyCode === 13) {
+        obj.onTodoAdd(addNew.value);
+        obj.node.dispatchEvent(obj.onadd);
+      }
+    })
+
+    this.node.addEventListener('click', function(e) {
+      let relevantId;
+      if (e.target.classList.contains('todos__remove')) {
+        relevantId = e.target.parentElement.dataset.id;
+        obj.onTodoRemoved(relevantId);
+        obj.node.dispatchEvent(obj.ondelete);
+      } else if (e.target.nodeName === 'LABEL') {
+        relevantId = e.target.parentElement.dataset.id;
+        obj.onTodoStateChanged(relevantId);
+        obj.node.dispatchEvent(obj.onchange);
+      }
+    })
+
   }
 
 	render() {
@@ -37,30 +66,20 @@ class TodoList {
       const current = total[el];
       const li = document.createElement('li');
       li.dataset.id = current;
+
       const input = document.createElement('input');
       input.type = 'checkbox';
       input.id = current;
+      if (this.todos[current].done) {
+        input.checked = true;
+      }
+
       const label = document.createElement('label');
       label.htmlFor = current;
 
       const remove = document.createElement('span');
       remove.textContent = '✖';
       remove.classList.add('todos__remove');
-
-      //remove event listener
-      remove.addEventListener('click', function() {
-        obj.onTodoRemoved(current);
-        obj.render();
-      })
-
-      //state change event listener
-      input.addEventListener('click', function() {
-        obj.onTodoStateChanged(current);
-        obj.render();
-      })
-      if (this.todos[current].done) {
-        input.checked = true;
-      }
 
       li.appendChild(input);
       li.appendChild(label);
@@ -69,19 +88,10 @@ class TodoList {
       li.dataset.done = this.todos[current].done;
       ul.appendChild(li);
     }
+
     this.node.appendChild(title);
     this.node.appendChild(newInput);
     this.node.appendChild(ul);
-
-    //add new event listener
-    newInput.addEventListener('keyup', function(e) {
-      if (e.keyCode === 13) {
-        const text = this.value;
-        console.log(text)
-        obj.onTodoAdd(text);
-        obj.render();
-      }
-    })
 	}
 }
 
@@ -92,7 +102,7 @@ const todos = {
   4: {done: false, text: 'Захватить мир' }
 };
 
-//document.registerElement('x-todos', ToDoList);
+
 
 
 
@@ -101,14 +111,13 @@ const todoList = new TodoList({
   todos,
   node: document.querySelector('.todos'),
   onTodoStateChanged: function (id) {
-      this.todos[id].done = !this.todos[id].done;
+    this.todos[id].done = !this.todos[id].done;
   },
   onTodoRemoved: function (id) {
-
     delete this.todos[id];
   },
   onTodoAdd: function (text) {
-      this.todos[Math.random().toString(16).substr(2)] = { done: false, text }
+    this.todos[Math.random().toString(16).substr(2)] = { done: false, text }
   }
 })
 console.log(todoList)
