@@ -7,13 +7,21 @@ class TodoList {
   	this.onTodoAdd = args['onTodoAdd'];
 
 
-    const onchange = new Event('onchange', {bubbles: true});
-    const onadd = new Event('onadd', {bubbles: true});
-    const ondelete = new Event('ondelete', {bubbles: true});
+    this.onchange = new Event('onchange', {bubbles: true});
+    this.onadd = new Event('onadd', {bubbles: true});
+    this.ondelete = new Event('ondelete', {bubbles: true});
+
+    this.node.addEventListener('onchange', this.render);
+    this.node.addEventListener('onadd', () => {
+      this.render();
+    });
+    this.node.addEventListener('ondelete', this.render);
   }
 
 	render() {
     this.node.innerHTML = '';
+    const obj = this;
+
     const title = document.createElement('h1');
     title.textContent = 'todos';
     title.classList.add('todos__title');
@@ -28,6 +36,7 @@ class TodoList {
     for (let el in total) {
       const current = total[el];
       const li = document.createElement('li');
+      li.dataset.id = current;
       const input = document.createElement('input');
       input.type = 'checkbox';
       input.id = current;
@@ -38,18 +47,42 @@ class TodoList {
       remove.textContent = '✖';
       remove.classList.add('todos__remove');
 
+      //remove event listener
+      remove.addEventListener('click', function() {
+        obj.onTodoRemoved(current);
+        obj.render();
+      })
+
+      //state change event listener
+      input.addEventListener('click', function() {
+        obj.onTodoStateChanged(current);
+        obj.render();
+      })
+      if (this.todos[current].done) {
+        input.checked = true;
+      }
+
       li.appendChild(input);
       li.appendChild(label);
       label.textContent = this.todos[current].text;
-      label.appendChild(remove);
+      li.appendChild(remove);
       li.dataset.done = this.todos[current].done;
       ul.appendChild(li);
     }
     this.node.appendChild(title);
     this.node.appendChild(newInput);
     this.node.appendChild(ul);
-	}
 
+    //add new event listener
+    newInput.addEventListener('keyup', function(e) {
+      if (e.keyCode === 13) {
+        const text = this.value;
+        console.log(text)
+        obj.onTodoAdd(text);
+        obj.render();
+      }
+    })
+	}
 }
 
 const todos = {
@@ -68,21 +101,14 @@ const todoList = new TodoList({
   todos,
   node: document.querySelector('.todos'),
   onTodoStateChanged: function (id) {
-      // this.todos = {
-      //     Array.from(this.todos)],
-      //     [id]: { Array.from(this.todos)[id], done: !this.todos[id].done }
-      // };
+      this.todos[id].done = !this.todos[id].done;
   },
   onTodoRemoved: function (id) {
-      // const newTodos = { Array.from(this.todos) };
-      // delete newTodos[id];
-      // this.todos = newTodos;
+
+    delete this.todos[id];
   },
   onTodoAdd: function (text) {
-      // this.todos = {
-      //     ...this.todos,
-      //     [Math.random().toString(16).substr(2)]: { done: false, text }
-      // };
+      this.todos[Math.random().toString(16).substr(2)] = { done: false, text }
   }
 })
 console.log(todoList)
