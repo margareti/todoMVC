@@ -1,29 +1,62 @@
 class TodoList {
-  constructor (todos, node, change, rem, add) {
-  	this.todos = todos;
-  	this.node = node;
-  	this.onTodoStateChanged = change;
-  	this.onTodoStateChanged = rem;
-  	this.onTodoAdd = add;
+  constructor (args) {
+  	this.todos = args['todos'];
+  	this.node = args['node'];
+  	this.onTodoStateChanged = args['onTodoStateChanged'];
+  	this.onTodoRemoved = args['onTodoRemoved'];
+  	this.onTodoAdd = args['onTodoAdd'];
+
+
+    const onchange = new Event('onchange', {bubbles: true});
+    const onadd = new Event('onadd', {bubbles: true});
+    const ondelete = new Event('ondelete', {bubbles: true});
   }
-	init() {
-		const shadowRoot = this.attachShadow({ mode: 'closed' });
-	}
+
 	render() {
- 		const htmlMarkup = '';
- 		console.log(this)
+    this.node.innerHTML = '';
+    const title = document.createElement('h1');
+    title.textContent = 'todos';
+    title.classList.add('todos__title');
+
+    const ul = document.createElement('ul');
+    const total = Object.keys(this.todos);
+    const newInput = document.createElement('input');
+    newInput.type = 'text';
+    newInput.placeholder = 'погладить кота';
+    newInput.classList.add('todos_new');
+
+    for (let el in total) {
+      const current = total[el];
+      const li = document.createElement('li');
+      const input = document.createElement('input');
+      input.type = 'checkbox';
+      input.id = current;
+      const label = document.createElement('label');
+      label.htmlFor = current;
+
+      const remove = document.createElement('span');
+      remove.textContent = '✖';
+      remove.classList.add('todos__remove');
+
+      li.appendChild(input);
+      li.appendChild(label);
+      label.textContent = this.todos[current].text;
+      label.appendChild(remove);
+      li.dataset.done = this.todos[current].done;
+      ul.appendChild(li);
+    }
+    this.node.appendChild(title);
+    this.node.appendChild(newInput);
+    this.node.appendChild(ul);
 	}
-  // createCallback(){
-	 //  console.log(this);
-	 //  console.log('ready')
-  // }
+
 }
 
 const todos = {
-    1: {done: false, text: 'Решить все задания 4 модуля' },
-    2: {done: false, text: 'Заплатить за 5 модуль' },
-    3: {done: false, text: 'Победить лень' },
-    4: {done: false, text: 'Захватить мир' }
+  1: {done: false, text: 'Решить все задания 4 модуля' },
+  2: {done: false, text: 'Заплатить за 5 модуль' },
+  3: {done: false, text: 'Победить лень' },
+  4: {done: false, text: 'Захватить мир' }
 };
 
 //document.registerElement('x-todos', ToDoList);
@@ -32,25 +65,30 @@ const todos = {
 
 
 const todoList = new TodoList({
-    todos,
-    node: document.querySelector('todos'),
-    onTodoStateChanged: function (id) {
-        // this.todos = {
-        //     Array.from(this.todos)],
-        //     [id]: { Array.from(this.todos)[id], done: !this.todos[id].done }
-        // };
-    },
-    onTodoRemoved: function (id) {
-        // const newTodos = { Array.from(this.todos) };
-        // delete newTodos[id];
-        // this.todos = newTodos;
-    },
-    onTodoAdd: function (text) {
-        // this.todos = {
-        //     ...this.todos,
-        //     [Math.random().toString(16).substr(2)]: { done: false, text }
-        // };
-    }
-});
-
+  todos,
+  node: document.querySelector('.todos'),
+  onTodoStateChanged: function (id) {
+      // this.todos = {
+      //     Array.from(this.todos)],
+      //     [id]: { Array.from(this.todos)[id], done: !this.todos[id].done }
+      // };
+  },
+  onTodoRemoved: function (id) {
+      // const newTodos = { Array.from(this.todos) };
+      // delete newTodos[id];
+      // this.todos = newTodos;
+  },
+  onTodoAdd: function (text) {
+      // this.todos = {
+      //     ...this.todos,
+      //     [Math.random().toString(16).substr(2)]: { done: false, text }
+      // };
+  }
+})
 console.log(todoList)
+todoList.render()
+
+
+
+
+
