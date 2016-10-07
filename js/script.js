@@ -7,15 +7,15 @@ class TodoList {
   	this.onTodoAdd = args['onTodoAdd'];
 
 
-    this.onchange = new Event('onchange', {bubbles: true});
-    this.onadd = new Event('onadd', {bubbles: true});
-    this.ondelete = new Event('ondelete', {bubbles: true});
+    // this.onchange = new Event('onchange', {bubbles: true});
+    // this.onadd = new Event('onadd', {bubbles: true});
+    // this.ondelete = new Event('ondelete', {bubbles: true});
 
-    this.node.addEventListener('onchange', this.render);
-    this.node.addEventListener('onadd', () => {
-      this.render();
-    });
-    this.node.addEventListener('ondelete', this.render);
+    // this.node.addEventListener('onchange', this.render);
+    // this.node.addEventListener('onadd', () => {
+    //   this.render();
+    // });
+    // this.node.addEventListener('ondelete', this.render);
   }
 
 	render() {
