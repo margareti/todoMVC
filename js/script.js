@@ -5,7 +5,7 @@ class TodoList {
   	this.onTodoStateChanged = args['onTodoStateChanged'];
   	this.onTodoRemoved = args['onTodoRemoved'];
   	this.onTodoAdd = args['onTodoAdd'];
-
+    this.render();
 
     const obj = this;
     this.onchange = new Event('onchange', {bubbles: true});
@@ -49,7 +49,6 @@ class TodoList {
 
 	render() {
     this.node.innerHTML = '';
-    const obj = this;
 
     const title = document.createElement('h1');
     title.textContent = 'todos';
@@ -70,9 +69,6 @@ class TodoList {
       const input = document.createElement('input');
       input.type = 'checkbox';
       input.id = current;
-      if (this.todos[current].done) {
-        input.checked = true;
-      }
 
       const label = document.createElement('label');
       label.htmlFor = current;
@@ -95,35 +91,35 @@ class TodoList {
 	}
 }
 
+
 const todos = {
-  1: {done: false, text: 'Решить все задания 4 модуля' },
-  2: {done: false, text: 'Заплатить за 5 модуль' },
-  3: {done: false, text: 'Победить лень' },
-  4: {done: false, text: 'Захватить мир' }
+    1: {done: false, text: 'Решить все задания 4 модуля' },
+    2: {done: false, text: 'Заплатить за 5 модуль' },
+    3: {done: false, text: 'Победить лень' },
+    4: {done: false, text: 'Захватить мир' }
 };
 
-
-
-
-
-
 const todoList = new TodoList({
-  todos,
-  node: document.querySelector('.todos'),
-  onTodoStateChanged: function (id) {
-    this.todos[id].done = !this.todos[id].done;
-  },
-  onTodoRemoved: function (id) {
-    delete this.todos[id];
-  },
-  onTodoAdd: function (text) {
-    this.todos[Math.random().toString(16).substr(2)] = { done: false, text }
-  }
-})
-console.log(todoList)
-todoList.render()
-
-
+    todos,
+    node: document.querySelector('.todos'),
+    onTodoStateChanged: function (id) {
+        this.todos = {
+            ...this.todos,
+            [id]: { ...this.todos[id], done: !this.todos[id].done }
+        };
+    },
+    onTodoRemoved: function (id) {
+        const newTodos = { ...this.todos };
+        delete newTodos[id];
+        this.todos = newTodos;
+    },
+    onTodoAdd: function (text) {
+        this.todos = {
+            ...this.todos,
+            [Math.random().toString(16).substr(2)]: { done: false, text }
+        };
+    }
+});
 
 
 
